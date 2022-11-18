@@ -2,14 +2,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 from math import *
 
-X_MAX = 100  # 场地大小
-grid_size = 20  # 网格大小
-grid_num = int(X_MAX / grid_size)  # 网格数量
-users_num = 16  # 用户数量
+# from environment.User import User
+
+X_MAX = 100
+"""场地大小"""
+grid_size = 20
+"""网格大小"""
+grid_num = int(X_MAX / grid_size)
+"""网格数量"""
+users_num = 16
+"""用户数量"""
 lam_low = 0
 lam_high = 1  # 产生数据的参数（每个时隙预期产生数据数）
-user_speed = 1  # 用户移动的最大速度
-max_steps = 200  # 训练的次数（用来产生表示每个时隙是否采样的向量）
+user_speed = 1
+"""用户移动的最大速度"""
+max_steps = 200
+"""训练的次数（用来产生表示每个时隙是否采样的向量）"""
 
 
 class PlayGround:
@@ -17,9 +25,8 @@ class PlayGround:
         self.action_dim = 5  # action是上下左右停
         self.state_dim = 1 + 3 * users_num  # UAV位置，UE位置，UE的AoI，UAV端的AoI，
 
-        self.UE_list = []  # 用户列表
-        for i in range(users_num):
-            self.UE_list.append(User())
+        self.UE_list = [User() for i in range(users_num)]
+        """用户列表"""
         self.UE_loc, self.UE_lam, self.UE_AoI = extract_data(self.UE_list)  # 为了方便把用户的信息提取出来
         # print(self.UE_loc, self.UE_lam, self.UE_AoI)
 
@@ -58,8 +65,8 @@ class PlayGround:
     def step(self, action):  # 返回 next_state, reward, done, info
         self.reward = 0
         """UE端状态更新（位置和AoI）"""
-        for i in range(users_num):
-            self.UE_list[i].step_one_slot(self.step_num)
+        for user in self.UE_list:
+            user.step_one_slot(self.step_num)
         self.UE_loc, _, self.UE_AoI = extract_data(self.UE_list)
         """UAV端状态更新（位置和AoI）"""
         self.action = action
@@ -71,7 +78,7 @@ class PlayGround:
             self.UAV_loc -= 1
         elif self.action == 3:  # 右
             self.UAV_loc += 1
-        self.UAV_loc = clamp(self.UAV_loc, 0, grid_num**2-1)
+        self.UAV_loc = clamp(self.UAV_loc, 0, grid_num ** 2 - 1)
         # 计算UAV端的AoI
         self.UAV_AoI += np.ones_like(self.UAV_AoI)
         for j in range(users_num):
@@ -117,30 +124,17 @@ class User:
 
 
 def extract_data(UE_list):
-    UE_loc = []  # 为了方便把用户的信息提取出来，用户网格坐标
-    UE_lam = []  # 用户产生数据的参数
-    UE_AoI = []  # 用户AoI
-    for i in range(users_num):
-        UE_loc.append(UE_list[i].grid_No)
-        UE_lam.append(UE_list[i].lam)
-        UE_AoI.append(UE_list[i].AoI)
-    # print(self.UE_loc, self.UE_lam, self.UE_AoI)
+    """提取出用户信息"""
+    UE_loc = [user.grid_No for user in UE_list] # 用户网格坐标
+    UE_lam = [user.lam for user in UE_list] # 用户产生数据的参数
+    UE_AoI = [user.AoI for user in UE_list] # 用户AoI
     return UE_loc, UE_lam, UE_AoI
 
-def clamp(n, minn, maxn):  # 作用是限制某数在某范围内
-    if n < minn:
-        return minn
-    elif n > maxn:
-        return maxn
-    else:
-        return n
+
+def clamp(num, minn, maxn):  # 作用是限制num在[minn,maxn]内
+    return max(min(num, maxn), minn)
+
 
 if __name__ == "__main__":
     PG = PlayGround()
     PG.step(1)
-
-
-
-
-
-
