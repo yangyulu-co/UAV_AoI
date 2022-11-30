@@ -37,7 +37,7 @@ class UAV:
 
         self.speed_limit = speed_limit
         """速度限制"""
-        self.time_silp = 1
+        self.time_slice = 1
         """一个时隙的时间长度"""
 
         self.energy_consumption = 0
@@ -57,7 +57,7 @@ class UAV:
 
     def energy_by_speed(self, speed):
         """一个时隙内在恒定速度下的能耗"""
-        return power_by_speed(speed) * self.time_silp
+        return power_by_speed(speed) * self.time_slice
 
     def get_tail(self):
         """得到历史轨迹"""
@@ -69,6 +69,6 @@ class UAV:
             print("移动速度超出限制")
             return False
         # 更新位置
-        self.position.move_by_radian(radian, rate * self.speed_limit * self.time_silp)
+        self.position.move_by_radian(radian, rate * self.speed_limit * self.time_slice)
         # 更新能耗
         self.energy_consumption += self.energy_by_speed(rate * self.speed_limit)

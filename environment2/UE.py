@@ -3,7 +3,7 @@ import Position
 
 
 class UE:
-    def __init__(self, position, link_range, lambda_high, lambda_low, move_limit):
+    def __init__(self, position, link_range, lambda_high, lambda_low, speed_limit):
         self.position = position
         """UE所在位置"""
         self.aoi = 0
@@ -32,7 +32,10 @@ class UE:
         self.task = None
         """生成好的任务"""
 
-        self.move_limit = move_limit
+        self.speed_limit = speed_limit
+        """速度限制"""
+        self.time_slice = 1
+        self.move_limit = self.speed_limit * self.time_slice
         """每个时间间隔移动距离的限制，反应了用户的移动速度"""
 
     def distance(self, other_UE):
