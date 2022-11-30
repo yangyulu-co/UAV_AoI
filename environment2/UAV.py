@@ -1,11 +1,29 @@
+import math
+
 import numpy as np
 import Position
+
+
+def power_by_speed(v):
+    """不同速度下的功率"""
+    P0 = 0.012 / 8 * 1.225 * 0.05 * 0.503 * (300 ** 3) * (0.4 ** 3)
+    U_tip = 120
+    P1 = (1 + 0.1) * 20 ** (3 / 2) / math.sqrt(2 * 1.225 * 0.503)
+    v0 = 4.03
+    d0 = 0.6
+    rho = 1.225
+    s = 0.05
+    A = 0.503
+    P = P0 * (1 + (3 * v ** 2) / (U_tip ** 2)) + P1 * (
+            math.sqrt(1 + v ** 4 / (4 * v0 ** 4)) - v ** 2 / (2 * v0 ** 2)) ** 0.5
+    + 0.5 * d0 * rho * s * A * v ** 3
+    return P
 
 
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position, cover_distance, max_speed, transmit_power, height, move_limit):
+    def __init__(self, position, cover_distance, max_speed, transmit_power, height, speed_limit):
         self.position = position
         """UAV所在位置"""
         self.cover_distance = cover_distance
@@ -17,8 +35,13 @@ class UAV:
         self.height = height
         """巡航高度"""
 
-        self.move_limit = move_limit
-        """每个时间间隔移动距离的限制，反应了无人机的移动速度"""
+        self.speed_limit = speed_limit
+        """速度限制"""
+        self.time_silp = 1
+        """一个时隙的时间长度"""
+
+        self.energy_consumption = 0
+        """累计无人机能量的消耗"""
 
     def distance(self, point):
         """与UE/BS之间的距离"""
@@ -28,21 +51,24 @@ class UAV:
         """UAV是否能连接到UE/BS"""
         return self.position.if_connect(point.position, point.link_range)
 
-    def move(self, x_move, y_move):
-        """UAV位置的移动"""
-        self.position.move(x_move, y_move)  # 更新位置
+    # def move(self, x_move, y_move):
+    #     """UAV位置的移动"""
+    #     self.position.move(x_move, y_move)  # 更新位置
+
+    def energy_by_speed(self, speed):
+        """一个时隙内在恒定速度下的能耗"""
+        return power_by_speed(speed) * self.time_silp
 
     def get_tail(self):
         """得到历史轨迹"""
         return self.position.tail
 
-    def move_by_radian(self, radian, distance):
-        """无人机水平移动，弧度形式"""
-        if not 0 <= distance <= self.move_limit:
-            print("移动距离超出限制")
-            return False
-        self.position.move_by_radian(radian, distance)
-
     def move_by_radian_rate(self, radian, rate):
         """无人机水平移动，rate参数为0到1之间的数"""
-        self.move_by_radian(radian, self.move_limit * rate)
+        if not 0 <= rate <= 1:
+            print("移动速度超出限制")
+            return False
+        # 更新位置
+        self.position.move_by_radian(radian, rate * self.speed_limit * self.time_silp)
+        # 更新能耗
+        self.energy_consumption += self.energy_by_speed(rate * self.speed_limit)
