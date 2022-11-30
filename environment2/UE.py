@@ -33,7 +33,7 @@ class UE:
         """生成好的任务"""
 
         self.move_limit = move_limit
-        """每个时间间隔移动距离的限制，反应了无人机的移动速度"""
+        """每个时间间隔移动距离的限制，反应了用户的移动速度"""
 
     def distance(self, other_UE):
         """与其他节点的距离"""
@@ -64,12 +64,12 @@ class UE:
         return ans_task
 
     def move_by_radian(self, radian, distance):
-        """无人机水平移动，弧度形式"""
+        """用户水平移动，弧度形式"""
         if not 0 <= distance <= self.move_limit:
             print("移动距离超出限制")
             return False
         self.position.move_by_radian(radian, distance)
 
     def move_by_radian_rate(self, radian, rate):
-        """无人机水平移动，rate参数为0到1之间的数"""
+        """用户水平移动，rate参数为0到1之间的数"""
         self.move_by_radian(radian, self.move_limit * rate)
