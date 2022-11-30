@@ -32,6 +32,7 @@ class Position:
         dx = self.horizontal_distance(other_position)
         dy = self.vertical_distance(other_position)
         return math.atan2(dy, dx)
+
     def print(self):
         """打印位置"""
         print(self.data)
@@ -41,7 +42,7 @@ class Position:
         return self.distance(other_position) <= threshold
 
     def move(self, x_move, y_move, z_move=0):
-        """位置的移动"""
+        """位置的移动,dx,dx形式"""
         # 保存新的位置
         self.data[0, 0] += x_move
         self.data[0, 1] += y_move
@@ -49,9 +50,13 @@ class Position:
         # 将位置记录到历史位置中
         self.tail = np.vstack((self.tail, self.data))
 
+    def move_by_radian(self, radian, distance):
+        """位置的水平移动，弧度和距离形式"""
+        self.move(math.cos(radian) * distance, math.sin(radian) * distance)
+
 
 if __name__ == "__main__":
-    point1 = Position(3, 4, 1.732*5)
+    point1 = Position(3, 4, 1.732 * 5)
     point1.print()
     point2 = Position(0, 0, 0)
     print(point1.distance(point2))
@@ -64,4 +69,3 @@ if __name__ == "__main__":
     point1.move(1, 2, 3)
     point1.move(1, 2, 3)
     print(point1.tail)
-
