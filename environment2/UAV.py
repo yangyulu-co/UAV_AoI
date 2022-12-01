@@ -3,6 +3,28 @@ import math
 import numpy as np
 import Position
 
+def calcul_Prob_LoS(radian):
+    """计算给定弧度下LoS的概率"""
+    theta = math.degrees(radian)
+    Prob_Los = 1 / (1 + 10 * math.exp(-0.6 * (theta - 10)))  # 城市环境中视距传输概率
+    return Prob_Los
+
+
+def calcul_Prob_hat(radian):
+    """给定弧度下考虑到LOS信道的等效衰减系数"""
+    chi = 0.2
+    Prob_Los = calcul_Prob_LoS(radian)
+    Prob_hat = Prob_Los * chi + (1 - Prob_Los)
+    return Prob_hat
+
+
+def calcul_channel_gain(position1, position2):
+    """计算平均信道增益"""
+    beta_0 = 1  # 待定
+    alpha = 2.3
+    radian = position1.downcast(position2)
+    channel_gain = calcul_Prob_hat(radian) * (position1.distance(position2) ** -alpha) * beta_0
+    return channel_gain
 
 def power_by_speed(v):
     """不同速度下的功率"""
@@ -23,13 +45,12 @@ def power_by_speed(v):
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position, cover_distance, max_speed, transmit_power, height, speed_limit):
+    def __init__(self, position, cover_distance,  transmit_power, height, speed_limit):
         self.position = position
         """UAV所在位置"""
         self.cover_distance = cover_distance
         """覆盖范围"""
-        self.max_speed = max_speed
-        """最大速度"""
+
         self.transmit_power = transmit_power
         """发射功率"""
         self.height = height

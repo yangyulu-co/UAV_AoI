@@ -20,10 +20,14 @@ class UE:
 
         self.energy = 100.0
         """用户的电量"""
+        self.energy_max = 100.0
+        """电量的最大值"""
         self.energy_threshold = 20.0
         """电量阈值，低于阈值，进入低功耗状态"""
         self.energy_state = 2
         """电量状态，2为高电量，1为低电量，0为无电"""
+        self.energy_conversion_efficiency = 1
+        """无线充电时能量收集效率"""
 
         self.next_generate = float('inf')
         """下一次产生数据的时间的倒计时"""
@@ -76,3 +80,13 @@ class UE:
     def move_by_radian_rate(self, radian, rate):
         """用户水平移动，rate参数为0到1之间的数"""
         self.move_by_radian(radian, self.move_limit * rate)
+
+    def charge(self, energy):
+        """给UE充电"""
+        temp_energy = energy * self.energy_conversion_efficiency
+        energy = min(100.0, energy + temp_energy)
+        self.update_energy_state()  # 更新电量状态
+
+
+
+
