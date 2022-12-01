@@ -10,6 +10,9 @@ class DPUAV(UAV):
 
     def __init__(self):
         self.B = 5 * 10 ** 5  # 传输带宽
+        """传输带宽"""
+        self.transmit_power = 100
+        """无人机传输信号发射功率"""
 
     def get_transmission_rate_with_UE(self, ue):
         """DPUAV和UE之间实际的传输速率"""
@@ -18,6 +21,10 @@ class DPUAV(UAV):
         return self.B * math.log(1 + gain * gamma_0, 2)
 
     def get_transmission_time(self, ue):
-        """传输ue任务到无人机的时间"""
+        """传输单个ue任务到无人机的时间"""
         rate = self.get_transmission_rate_with_UE(ue)
         return ue.task.storage / rate
+
+    def get_transmission_energy(self, ue):
+        """传输单个ue任务到无人机的能耗"""
+        energy = self.transmit_power * self.get_transmission_time(ue)

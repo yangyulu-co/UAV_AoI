@@ -45,14 +45,13 @@ def power_by_speed(v):
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position, cover_distance,  transmit_power, height, speed_limit):
+    def __init__(self, position, cover_distance,  height, speed_limit):
         self.position = position
         """UAV所在位置"""
         self.cover_distance = cover_distance
         """覆盖范围"""
 
-        self.transmit_power = transmit_power
-        """发射功率"""
+
         self.height = height
         """巡航高度"""
 
