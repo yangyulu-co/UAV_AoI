@@ -3,14 +3,15 @@ import math
 import numpy as np
 import Position
 
-def calcul_Prob_LoS(radian):
+
+def calcul_Prob_LoS(radian: float) -> float:
     """计算给定弧度下LoS的概率"""
     theta = math.degrees(radian)
     Prob_Los = 1 / (1 + 10 * math.exp(-0.6 * (theta - 10)))  # 城市环境中视距传输概率
     return Prob_Los
 
 
-def calcul_Prob_hat(radian):
+def calcul_Prob_hat(radian: float) -> float:
     """给定弧度下考虑到LOS信道的等效衰减系数"""
     chi = 0.2
     Prob_Los = calcul_Prob_LoS(radian)
@@ -18,7 +19,7 @@ def calcul_Prob_hat(radian):
     return Prob_hat
 
 
-def calcul_channel_gain(position1, position2):
+def calcul_channel_gain(position1: Position, position2: Position) -> float:
     """计算平均信道增益"""
     beta_0 = 1  # 待定
     alpha = 2.3
@@ -26,7 +27,14 @@ def calcul_channel_gain(position1, position2):
     channel_gain = calcul_Prob_hat(radian) * (position1.distance(position2) ** -alpha) * beta_0
     return channel_gain
 
-def power_by_speed(v):
+
+def calcul_SNR(p: float) -> float:
+    sigma_2 = 1.0
+    """计算信噪比"""
+    return p / sigma_2
+
+
+def power_by_speed(v: float) -> float:
     """不同速度下的功率"""
     P0 = 0.012 / 8 * 1.225 * 0.05 * 0.503 * (300 ** 3) * (0.4 ** 3)
     U_tip = 120
@@ -36,21 +44,20 @@ def power_by_speed(v):
     rho = 1.225
     s = 0.05
     A = 0.503
-    P = P0 * (1 + (3 * v ** 2) / (U_tip ** 2)) + P1 * (
-            math.sqrt(1 + v ** 4 / (4 * v0 ** 4)) - v ** 2 / (2 * v0 ** 2)) ** 0.5
-    + 0.5 * d0 * rho * s * A * v ** 3
+    P = P0 * (1 + (3 * v ** 2) / (U_tip ** 2)) + \
+        P1 * (math.sqrt(1 + v ** 4 / (4 * v0 ** 4)) - v ** 2 / (2 * v0 ** 2)) ** 0.5 + \
+        0.5 * d0 * rho * s * A * v ** 3
     return P
 
 
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position, cover_distance,  height, speed_limit):
+    def __init__(self, position, cover_distance, height, speed_limit):
         self.position = position
         """UAV所在位置"""
         self.cover_distance = cover_distance
         """覆盖范围"""
-
 
         self.height = height
         """巡航高度"""
@@ -75,7 +82,7 @@ class UAV:
     #     """UAV位置的移动"""
     #     self.position.move(x_move, y_move)  # 更新位置
 
-    def energy_by_speed(self, speed):
+    def energy_by_speed(self, speed: float) -> float:
         """一个时隙内在恒定速度下的能耗"""
         return power_by_speed(speed) * self.time_slice
 
@@ -83,7 +90,7 @@ class UAV:
         """得到历史轨迹"""
         return self.position.tail
 
-    def move_by_radian_rate(self, radian, rate):
+    def move_by_radian_rate(self, radian: float, rate: float):
         """无人机水平移动，rate参数为0到1之间的数"""
         if not 0 <= rate <= 1:
             print("移动速度超出限制")

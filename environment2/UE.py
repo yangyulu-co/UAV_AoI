@@ -1,16 +1,19 @@
 import numpy as np
+import math
 import Position
+from environment2.UAV import calcul_SNR, calcul_channel_gain
+from environment2.DPUAV import DPUAV
 
 
 class UE:
     def __init__(self, position, link_range, lambda_high, lambda_low, speed_limit):
         self.position = position
         """UE所在位置"""
-        self.aoi = 0
+        self.aoi = 0.0
         """aoi"""
         self.link_range = link_range
         """连接范围"""
-        self.aoi_tail = [0]
+        self.aoi_tail = [0.0]
         """历史aoi数据"""
 
         self.labmda_high = lambda_high
@@ -42,7 +45,10 @@ class UE:
         self.move_limit = self.speed_limit * self.time_slice
         """每个时间间隔移动距离的限制，反应了用户的移动速度"""
 
-    def distance(self, other_UE):
+        self.transmission_power = None
+        """UE的发射功率"""
+
+    def distance(self, other_UE: 'UE') -> float:
         """与其他节点的距离"""
         return self.position.distance(other_UE.position)
 
@@ -55,7 +61,7 @@ class UE:
         else:
             self.energy_state = 0
 
-    def update_aoi(self, new_aoi):
+    def update_aoi(self, new_aoi: float):
         """更新AOI"""
         self.aoi = new_aoi
         self.aoi_tail.append(self.aoi)
@@ -70,23 +76,35 @@ class UE:
         self.task = None
         return ans_task
 
-    def move_by_radian(self, radian, distance):
+    def move_by_radian(self, radian: float, distance: float):
         """用户水平移动，弧度形式"""
         if not 0 <= distance <= self.move_limit:
             print("移动距离超出限制")
             return False
         self.position.move_by_radian(radian, distance)
 
-    def move_by_radian_rate(self, radian, rate):
+    def move_by_radian_rate(self, radian: float, rate: float):
         """用户水平移动，rate参数为0到1之间的数"""
         self.move_by_radian(radian, self.move_limit * rate)
 
-    def charge(self, energy):
+    def charge(self, energy: float):
         """给UE充电"""
         temp_energy = energy * self.energy_conversion_efficiency
         energy = min(100.0, energy + temp_energy)
         self.update_energy_state()  # 更新电量状态
 
+    def get_transmission_rate_with_UAV(self, uav: DPUAV) -> float:
+        """DPUAV和UE之间实际的传输速率"""
+        SNR = calcul_SNR(self.transmission_power)
+        gain = calcul_channel_gain(uav.position, self.position)
+        return uav.B_ue * math.log2(1 + gain * SNR)
 
+    def get_transmission_time(self, uav: DPUAV) -> float:
+        """UE传输单个任务到无人机的时间"""
+        rate = self.get_transmission_rate_with_UAV(uav)
+        return self.task.storage / rate
 
-
+    def get_transmission_energy(self, uav: DPUAV) -> float:
+        """传输单个ue任务到无人机的能耗"""
+        energy = self.transmission_power * self.get_transmission_time(uav)
+        return energy
