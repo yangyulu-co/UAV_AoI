@@ -11,7 +11,6 @@ class ETUAV(UAV):
 
     def charge_ue(self, ue: UE):
         """给单个UE充电"""
-        # 待定，判断是否在范围内
         gain = calcul_channel_gain(self.position, ue.position)
         ue.charge(gain * self.charge_power)
 

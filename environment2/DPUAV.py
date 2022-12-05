@@ -20,6 +20,13 @@ class DPUAV(UAV):
         self.transmission_power = None
         """无人机传输信号发射功率"""
 
+        self.computing_capacity = 1.0
+        """DPUAV的计算能力，单位为cpu cycle/时间间隔"""
+
+        self.link_range = 1.0
+        """DPUAV和UE之间连接距离的限制，在此范围内才可以连接"""
+
+
     def get_transmission_rate_with_BS(self, bs: BS) -> float:
         """DPUAV和BS之间实际的传输速率"""
         SNR = calcul_SNR(self.transmission_power)
@@ -35,3 +42,4 @@ class DPUAV(UAV):
         """传输单个ue任务到BS的能耗"""
         energy = self.transmission_power * self.get_transmission_time_with_BS(ue, bs)
         return energy
+

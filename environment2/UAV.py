@@ -53,11 +53,9 @@ def power_by_speed(v: float) -> float:
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position, cover_distance, height, speed_limit):
+    def __init__(self, position: Position,  height: float, speed_limit:float):
         self.position = position
         """UAV所在位置"""
-        self.cover_distance = cover_distance
-        """覆盖范围"""
 
         self.height = height
         """巡航高度"""
@@ -70,17 +68,7 @@ class UAV:
         self.energy_consumption = 0
         """累计无人机能量的消耗"""
 
-    def distance(self, point):
-        """与UE/BS之间的距离"""
-        return self.position.distance(point.position)
 
-    def if_connect(self, point):
-        """UAV是否能连接到UE/BS"""
-        return self.position.if_connect(point.position, point.link_range)
-
-    # def move(self, x_move, y_move):
-    #     """UAV位置的移动"""
-    #     self.position.move(x_move, y_move)  # 更新位置
 
     def energy_by_speed(self, speed: float) -> float:
         """一个时隙内在恒定速度下的能耗"""
