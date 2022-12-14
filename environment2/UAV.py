@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import Position
-
+import environment2.Constant
 
 def calcul_Prob_LoS(radian: float) -> float:
     """计算给定弧度下LoS的概率"""
@@ -35,7 +35,7 @@ def calcul_SNR(p: float) -> float:
 
 
 def power_by_speed(v: float) -> float:
-    """不同速度下的功率"""
+    """不同速度下的功率,速度的单位为m/s,功率单位为W"""
     P0 = 0.012 / 8 * 1.225 * 0.05 * 0.503 * (300 ** 3) * (0.4 ** 3)
     U_tip = 120
     P1 = (1 + 0.1) * 20 ** (3 / 2) / math.sqrt(2 * 1.225 * 0.503)
@@ -53,26 +53,23 @@ def power_by_speed(v: float) -> float:
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position: Position,  height: float, speed_limit:float):
+    def __init__(self, position: Position, height: float, speed_limit: float):
         self.position = position
         """UAV所在位置"""
 
         self.height = height
-        """巡航高度"""
+        """巡航高度,单位m"""
 
         self.speed_limit = speed_limit
-        """速度限制"""
-        self.time_slice = 1
-        """一个时隙的时间长度"""
+        """飞行最大速度，单位m/s"""
+
 
         self.energy_consumption = 0
-        """累计无人机能量的消耗"""
-
-
+        """累计无人机能量的消耗(Wh)"""
 
     def energy_by_speed(self, speed: float) -> float:
-        """一个时隙内在恒定速度下的能耗"""
-        return power_by_speed(speed) * self.time_slice
+        """一个时隙内在恒定速度(m/s)下的能耗，单位为Wh"""
+        return power_by_speed(speed) * (environment2.Constant.time_slice / (60 * 60))
 
     def get_tail(self):
         """得到历史轨迹"""
@@ -84,6 +81,6 @@ class UAV:
             print("移动速度超出限制")
             return False
         # 更新位置
-        self.position.move_by_radian(radian, rate * self.speed_limit * self.time_slice)
+        self.position.move_by_radian(radian, rate * self.speed_limit * environment2.Constant.time_slice)
         # 更新能耗
         self.energy_consumption += self.energy_by_speed(rate * self.speed_limit)

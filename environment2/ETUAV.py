@@ -1,3 +1,4 @@
+from environment2.Position import Position
 from environment2.UAV import UAV, calcul_channel_gain
 from environment2.UE import UE
 
@@ -5,9 +6,10 @@ from environment2.UE import UE
 class ETUAV(UAV):
     """给UE进行无线充电的UAV，energy transmission"""
 
-    def __init__(self):
-        self.charge_power = 100
-        """无人机无线充电的功率"""
+    def __init__(self, position: Position):
+        super().__init__(position, 80, 10)
+        self.charge_power = 10.0
+        """无人机无线充电的功率(W)"""
 
     def charge_ue(self, ue: UE):
         """给单个UE充电"""

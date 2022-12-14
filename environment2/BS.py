@@ -14,6 +14,6 @@ class BS:
         """连接范围"""
         self.B_UAV = 1.0
         """与UAV之间的传输带宽"""
-        self.self.computing_capacity = 1.0
+        self.self.computing_capacity = 25*(10**7)
         """BS的计算能力，单位为cpu cycle/时间间隔"""
 
