@@ -4,10 +4,12 @@ import numpy as np
 import Position
 import environment2.Constant
 
+
 def calcul_Prob_LoS(radian: float) -> float:
     """计算给定弧度下LoS的概率"""
     theta = math.degrees(radian)
-    Prob_Los = 1 / (1 + 10 * math.exp(-0.6 * (theta - 10)))  # 城市环境中视距传输概率
+    C, D = 10, 0.6
+    Prob_Los = 1 / (1 + C * math.exp(-D * (theta - C)))  # 城市环境中视距传输概率
     return Prob_Los
 
 
@@ -21,15 +23,15 @@ def calcul_Prob_hat(radian: float) -> float:
 
 def calcul_channel_gain(position1: Position, position2: Position) -> float:
     """计算平均信道增益"""
-    beta_0 = 1  # 待定
-    alpha = 2.3
+    beta_0 = 1*(10**(-3))
+    alpha = 2
     radian = position1.downcast(position2)
-    channel_gain = calcul_Prob_hat(radian) * (position1.distance(position2) ** -alpha) * beta_0
+    channel_gain = calcul_Prob_hat(radian) * (position1.distance(position2) ** (-alpha)) * beta_0
     return channel_gain
 
 
 def calcul_SNR(p: float) -> float:
-    sigma_2 = 1.0
+    sigma_2 = 1*(10*(-13)) # W
     """计算信噪比"""
     return p / sigma_2
 
@@ -63,13 +65,12 @@ class UAV:
         self.speed_limit = speed_limit
         """飞行最大速度，单位m/s"""
 
-
         self.energy_consumption = 0
-        """累计无人机能量的消耗(Wh)"""
+        """累计无人机能量的消耗(J)"""
 
     def energy_by_speed(self, speed: float) -> float:
-        """一个时隙内在恒定速度(m/s)下的能耗，单位为Wh"""
-        return power_by_speed(speed) * (environment2.Constant.time_slice / (60 * 60))
+        """一个时隙内在恒定速度(m/s)下的能耗，单位为J"""
+        return power_by_speed(speed) * environment2.Constant.time_slice
 
     def get_tail(self):
         """得到历史轨迹"""

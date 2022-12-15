@@ -7,11 +7,9 @@ from environment2.Position import Position
 from environment2.UAV import UAV, calcul_channel_gain, calcul_SNR
 from environment2.UE import UE
 
-channel_gain = 1
-"""BS和UAV之间的信道增益"""
-energy_with_BS = 1
-"""DP-UAV与基站通信需要的能量"""
-max_connect = 4
+
+
+max_compute = 4
 """DP-UAV每个时刻最多能并行计算的用户数量"""
 
 class DPUAV(UAV):
@@ -19,11 +17,11 @@ class DPUAV(UAV):
 
     def __init__(self, position: Position):
         super().__init__(position, 100, 10)
-        self.B_ue = 5 * 10 ** 5
-        """与ue之间的传输带宽"""
+        self.B_ue = 1 * (10 ** 6)
+        """与ue之间的传输带宽(Hz)"""
 
-        self.transmission_power = None
-        """无人机传输信号发射功率"""
+        self.transmission_energy = 1*(10**(-3))
+        """无人机传输信号发射能耗(j)"""
 
         self.computing_capacity = 5*(10**7)
         """DPUAV的计算能力，单位为cpu cycle/s"""
@@ -31,22 +29,13 @@ class DPUAV(UAV):
         self.link_range = 100.0
         """DPUAV和UE之间连接距离的限制，在此范围内才可以连接,单位为m"""
 
-    def get_transmission_rate_with_BS(self, bs: BS) -> float:
-        """DPUAV和BS之间实际的传输速率"""
-        SNR = calcul_SNR(self.transmission_power)
-        gain = channel_gain
-        return bs.B_UAV * math.log2(1 + gain * SNR)
+        self.rate_BS = 4*(10**(6))
+        """与BS之间的通信速率(bit/s)"""
 
-    def get_transmission_time_with_BS(self, ue: UE, bs: BS) -> float:
-        """传输单个ue任务到BS的时间"""
-        rate = self.get_transmission_rate_with_BS(bs)
-        return ue.task.storage / rate
+    def get_transmission_time_with_BS(self, ue: UE) -> float:
+        """传输单个ue任务到BS的时间(s)"""
+        return ue.task.storage / self.rate_BS
 
-    def get_transmission_energy_with_BS(self, ue: UE, bs: BS):
-        """传输单个ue任务到BS的能耗"""
-        energy = self.transmission_power * self.get_transmission_time_with_BS(ue, bs)
-        return energy
 
-    def if_link(self, ue: UE) -> bool:
-        """是否与UE连接"""
-        return self.position.if_connect(ue.position, self.link_range)
+
+
