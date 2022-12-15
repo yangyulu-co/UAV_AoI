@@ -9,13 +9,12 @@ from environment2.DPUAV import DPUAV
 
 
 class UE:
-    def __init__(self, position, link_range, lambda_high, lambda_low, speed_limit):
+    def __init__(self, position, lambda_high=None, lambda_low=None, speed_limit=0):
         self.position = position
         """UE所在位置"""
         self.aoi = 0.0
         """aoi"""
-        self.link_range = link_range
-        """连接范围"""
+
         self.aoi_tail = [0.0]
         """历史aoi数据"""
 
