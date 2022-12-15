@@ -4,6 +4,7 @@ import numpy as np
 
 from environment2.BS import BS
 from environment2.Position import Position
+from environment2.Task import Task
 from environment2.UAV import UAV, calcul_channel_gain, calcul_SNR
 from environment2.UE import UE
 
@@ -36,6 +37,10 @@ class DPUAV(UAV):
         """传输单个ue任务到BS的时间(s)"""
         return ue.task.storage / self.rate_BS
 
+    def get_transmission_energy_with_BS(self, ue:UE)->float:
+        """传输单个UE任务到BS消耗的功耗(J),待定"""
+        return self.transmission_energy
 
-
-
+    def get_compute_time(self, task:Task)->float:
+        """任务所需要的计算时间(s)"""
+        return task.compute / self.computing_capacity
