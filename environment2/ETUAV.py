@@ -12,9 +12,15 @@ class ETUAV(UAV):
         self.charge_power = 10.0
         """无人机无线充电的功率(W)"""
 
-    def charge_ue(self, ue: UE):
+    def __charge_ue(self, ue: UE):
         """给单个UE充电(J)"""
         gain = calcul_channel_gain(self.position, ue.position)
         ue.charge(gain * self.charge_power * time_slice)
+
+    def charge_all_ues(self,ues:[UE]):
+        """"给所有UE充电并消耗能量"""
+        for ue in ues:
+            self.__charge_ue(ue)
+        self.add_temp_energy(self.charge_power)
 
 

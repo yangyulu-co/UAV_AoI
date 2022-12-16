@@ -8,3 +8,5 @@ time_slice = 1
 """时隙长度，单位为s"""
 time_length = 100
 """时隙数"""
+bs_computing_capacity = 25 * (10 ** 7)
+"""BS的计算能力，单位为cpu cycle/时间间隔"""
