@@ -3,14 +3,14 @@ from collections import defaultdict
 
 import numpy as np
 
-from environment2.Constant import N_user, N_ETUAV, N_DPUAV
+from environment2.Constant import N_user, N_ETUAV, N_DPUAV,eta_1,eta_2,eta_3
 from environment2.DPUAV import DPUAV
 from environment2.ETUAV import ETUAV
 from environment2.Position import Position
 from environment2.UE import UE
 
 
-def get_connect_matrix(ues: [UE], dpuavs: [DPUAV]):
+def get_link_dict(ues: [UE], dpuavs: [DPUAV]):
     """返回UEs和DAPUAVs之间的连接情况,返回一个dict,key为dpuav编号，value为此dpuav能够连接的ue组成的list"""
 
     link_dict = defaultdict(list)
@@ -28,6 +28,9 @@ def get_connect_matrix(ues: [UE], dpuavs: [DPUAV]):
 
     return link_dict
 
+def calcul_target_function(aois:[float],energy_dpuavs:[float],energy_etuavs:[float])->float:
+    """计算目标函数的值"""
+    return eta_1*sum(aois) + eta_2*sum(energy_dpuavs) + eta_3*sum(energy_etuavs)
 
 class Area:
     """模型所在的场地范围"""
@@ -40,6 +43,7 @@ class Area:
         self.limit[0, 1] = -y_range / 2
         self.limit[1, 1] = y_range / 2
 
+        # 生成ue,etuav,dpuav
         self.UEs = self.generate_UEs(N_user)
         """所有ue组成的列表"""
         self.ETUAVs = self.generate_ETUAVs(N_ETUAV)
@@ -49,6 +53,24 @@ class Area:
 
         self.aoi = [0.0 for _ in range(N_user)]
         """UE的aoi"""
+
+    def step(self, actions):
+        # UE产生数据
+        for ue in self.UEs:
+            ue.generate_task()
+        # 由强化学习控制，UAV开始运动
+        etuav_move_energy = [0.0 for _ in range(N_ETUAV)]
+        for i,etuav in enumerate(self.ETUAVs):
+            etuav_move_energy[i] = etuav.move_by_radian_rate()
+        dpuav_move_energy = [0.0 for _ in range(N_DPUAV)]
+        for i,dpuav in enumerate(self.DPUAVs):
+            dpuav_move_energy[i] = dpuav.move_by_radian_rate()
+
+        # 计算连接情况
+        link_dict = get_link_dict(self.UEs, self.DPUAVs)
+
+
+        # 使用穷举方法，决定UAV的卸载决策
 
 
 

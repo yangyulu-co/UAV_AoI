@@ -62,16 +62,16 @@ class UE:
         return self.position.if_connect(uav.position, uav.link_range)
 
     # 移动相关函数
-    def move_by_radian(self, radian: float, distance: float):
-        """用户水平移动，弧度形式"""
-        if not 0 <= distance <= self.move_limit:
-            print("移动距离超出限制")
-            return False
-        self.position.move_by_radian(radian, distance)
-
-    def move_by_radian_rate(self, radian: float, rate: float):
-        """用户水平移动，rate参数为0到1之间的数"""
-        self.move_by_radian(radian, self.move_limit * rate)
+    # def move_by_radian(self, radian: float, distance: float):
+    #     """用户水平移动，弧度形式"""
+    #     if not 0 <= distance <= self.move_limit:
+    #         print("移动距离超出限制")
+    #         return False
+    #     self.position.move_by_radian(radian, distance)
+    #
+    # def move_by_radian_rate(self, radian: float, rate: float):
+    #     """用户水平移动，rate参数为0到1之间的数"""
+    #     self.move_by_radian(radian, self.move_limit * rate)
 
     # 电量相关函数
     def update_energy_state(self):
@@ -115,7 +115,7 @@ class UE:
     # 生成数据相关函数
 
     def generate_task(self):
-        """每个时隙开始执行，按照电量产生数据并消耗能量"""
+        """每个时隙的开始执行，按照电量产生数据并消耗能量"""
         generate = None  # 是否产生新数据
         if self.energy_state == 1:
             # 高电量
@@ -128,10 +128,10 @@ class UE:
                 self.task = Task()
                 # 这里需要进一步处理
 
-    def update_aoi(self, new_aoi: float):
-        """更新AOI"""
-        self.aoi = new_aoi
-        self.aoi_tail.append(self.aoi)
+    # def update_aoi(self, new_aoi: float):
+    #     """更新AOI"""
+    #     self.aoi = new_aoi
+    #     self.aoi_tail.append(self.aoi)
 
     def offload_task(self):
         """UE卸载掉任务"""
