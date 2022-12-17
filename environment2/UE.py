@@ -53,9 +53,9 @@ class UE:
         """UE采集一个数据需要的能量(j)"""
 
     # 距离相关函数
-    def distance(self, other_UE: 'UE') -> float:
-        """与其他节点的距离"""
-        return self.position.distance(other_UE.position)
+    def distance_DPUAV(self, dpuav: DPUAV) -> float:
+        """与DPUAV的距离"""
+        return self.position.distance(dpuav.position)
 
     def if_link_DPUAV(self, uav: DPUAV) -> bool:
         """是否与UAV相连"""

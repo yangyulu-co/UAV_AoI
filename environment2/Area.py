@@ -9,6 +9,24 @@ from environment2.Position import Position
 from environment2.UE import UE
 
 
+def get_connect_matrix(ues: [UE], dpuavs: [DPUAV]):
+    """返回UEs和DAPUAVs之间的连接情况"""
+    # connect_matrix = np.zeros((len(ues),len(dpuavs)),np.int)
+    ans = []
+    for i, ue in enumerate(ues):
+        near_dpuav = None
+        near_distance = None
+        for j, dpuav in enumerate(dpuavs):
+            if ue.if_link_DPUAV(dpuav):  # 如果在连接范围内
+                distance = ue.distance_DPUAV(dpuav)
+                if near_dpuav is None or near_distance > distance:
+                    near_dpuav = j
+                    near_distance = distance
+        if near_distance is not None:
+            ans.append([i, near_dpuav])
+    return ans
+
+
 class Area:
     """模型所在的场地范围"""
 
@@ -26,9 +44,6 @@ class Area:
         """所有ETUAV组成的列表"""
         self.DPUAVs = self.generate_DPUAVs(N_DPUAV)
         """所有DPUAV组成的列表"""
-
-
-
 
     def if_in_area(self, position) -> bool:
         """判断位置是否在场地里"""
@@ -59,4 +74,3 @@ class Area:
     def generate_DPUAVs(self, num: int) -> [DPUAV]:
         """生成指定数量DPUAV，返回一个list"""
         return [DPUAV(self.generate_single_position()) for _ in range(num)]
-
