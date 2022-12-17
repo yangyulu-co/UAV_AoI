@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 
 import numpy as np
 
@@ -10,9 +11,9 @@ from environment2.UE import UE
 
 
 def get_connect_matrix(ues: [UE], dpuavs: [DPUAV]):
-    """返回UEs和DAPUAVs之间的连接情况"""
-    # connect_matrix = np.zeros((len(ues),len(dpuavs)),np.int)
-    ans = []
+    """返回UEs和DAPUAVs之间的连接情况,返回一个dict,key为dpuav编号，value为此dpuav能够连接的ue组成的list"""
+
+    link_dict = defaultdict(list)
     for i, ue in enumerate(ues):
         near_dpuav = None
         near_distance = None
@@ -23,8 +24,9 @@ def get_connect_matrix(ues: [UE], dpuavs: [DPUAV]):
                     near_dpuav = j
                     near_distance = distance
         if near_distance is not None:
-            ans.append([i, near_dpuav])
-    return ans
+            link_dict[near_dpuav].append(i)
+
+    return link_dict
 
 
 class Area:
@@ -44,6 +46,14 @@ class Area:
         """所有ETUAV组成的列表"""
         self.DPUAVs = self.generate_DPUAVs(N_DPUAV)
         """所有DPUAV组成的列表"""
+
+        self.aoi = [0.0 for _ in range(N_user)]
+        """UE的aoi"""
+
+
+
+
+
 
     def if_in_area(self, position) -> bool:
         """判断位置是否在场地里"""
