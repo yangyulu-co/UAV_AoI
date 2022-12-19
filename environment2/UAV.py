@@ -70,35 +70,34 @@ class UAV:
         self.speed_limit = speed_limit
         """飞行最大速度，单位m/s"""
 
-        self.energy_consumption = 0.0
-        """累计无人机能量的消耗(J)"""
-
-        self.temp_energy = 0.0
-        """当前时隙无人机能量的消耗(J)"""
+        # self.energy_consumption = 0.0
+        # """累计无人机能量的消耗(J)"""
+        #
+        # self.temp_energy = 0.0
+        # """当前时隙无人机能量的消耗(J)"""
 
     def get_tail(self):
         """得到历史轨迹"""
         return self.position.tail
 
     def move_by_radian_rate(self, radian: float, rate: float):
-        """无人机水平移动，rate参数为0到1之间的数"""
+        """无人机水平移动，rate参数为0到1之间的数,更新位置并返回功耗"""
         if not 0 <= rate <= 1:
             print("移动速度超出限制")
             return False
         # 更新位置
         self.position.move_by_radian(radian, rate * self.speed_limit * environment2.Constant.time_slice)
-        # 更新能耗
-        self.add_temp_energy(energy_by_speed(rate * self.speed_limit))
+        return energy_by_speed(rate * self.speed_limit)
 
-    def add_temp_energy(self, energy:float):
-        """一个时隙的能耗先暂时存放在这，时隙结束后再执行update_energy将能耗加入历史总能耗中"""
-        self.temp_energy += energy
-
-    def update_energy(self):
-        """在每个时隙的末尾执行，将temp_energy内的能量加入energy_comsumption中，并清0"""
-        self.energy_consumption += self.temp_energy
-        self.temp_energy = 0
-
-    def get_temp_energy(self)->float:
-        """返回这个时隙目前消耗的能量"""
-        return self.temp_energy
+    # def add_temp_energy(self, energy:float):
+    #     """一个时隙的能耗先暂时存放在这，时隙结束后再执行update_energy将能耗加入历史总能耗中"""
+    #     self.temp_energy += energy
+    #
+    # def update_energy(self):
+    #     """在每个时隙的末尾执行，将temp_energy内的能量加入energy_comsumption中，并清0"""
+    #     self.energy_consumption += self.temp_energy
+    #     self.temp_energy = 0
+    #
+    # def get_temp_energy(self)->float:
+    #     """返回这个时隙目前消耗的能量"""
+    #     return self.temp_energy

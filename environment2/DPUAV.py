@@ -2,12 +2,12 @@ import math
 
 import numpy as np
 
-from environment2.BS import BS
+
 from environment2.Constant import bs_computing_capacity
 from environment2.Position import Position
 from environment2.Task import Task
 from environment2.UAV import UAV, calcul_channel_gain, calcul_SNR
-from environment2.UE import UE
+# from environment2.UE import UE
 
 max_compute = 4
 """DP-UAV每个时刻最多能并行计算的用户数量"""
@@ -33,7 +33,7 @@ class DPUAV(UAV):
         self.rate_BS = 4 * (10 ** (6))
         """与BS之间的通信速率(bit/s)"""
 
-    def get_transmission_time_with_BS(self, ue: UE) -> float:
+    def get_transmission_time_with_BS(self, ue) -> float:
         """传输单个ue任务到BS的时间(s)"""
         return ue.task.storage / self.rate_BS
 
@@ -49,7 +49,7 @@ class DPUAV(UAV):
         """计算任务所需要的能耗(j),待定"""
         return 1.0
 
-    def calcul_single_compute_and_offloading_aoi(self, ue: UE, decisions: int):
+    def calcul_single_compute_and_offloading_aoi(self, ue, decisions: int):
         """计算不同卸载策略下的AOI，没有进行卸载则返回None"""
         if decisions == 0:  # 不卸载
             return None
@@ -65,7 +65,7 @@ class DPUAV(UAV):
             compute_time = ue.task.compute / bs_computing_capacity
             return waiting_time + transmission_time_1 + transmission_time_2 + compute_time
 
-    def calcul_single_compute_and_offloading_energy(self, ue: UE, decision: int):
+    def calcul_single_compute_and_offloading_energy(self, ue, decision: int):
         """计算不同卸载策略下的UAV的能量消耗，没有卸载则没有能量消耗"""
         if decision == 0:
             return 0
@@ -76,11 +76,11 @@ class DPUAV(UAV):
             transmission_energy = self.get_transmission_energy_with_BS()
             return transmission_energy
 
-    def execute_compute_and_offloading(self, ues: [UE], descisions: [int]):
-        if len(ues) == len(descisions):
-            print('error,len of ues != len of decisions')
-            return None
-        if descisions.count(1) > max_compute:
-            print('error, exceed max_compute')
-
-        return []
+    # def execute_compute_and_offloading(self, ues: [UE], descisions: [int]):
+    #     if len(ues) == len(descisions):
+    #         print('error,len of ues != len of decisions')
+    #         return None
+    #     if descisions.count(1) > max_compute:
+    #         print('error, exceed max_compute')
+    #
+    #     return []

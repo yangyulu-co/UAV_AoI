@@ -17,10 +17,10 @@ class ETUAV(UAV):
         gain = calcul_channel_gain(self.position, ue.position)
         ue.charge(gain * self.charge_power * time_slice)
 
-    def charge_all_ues(self,ues:[UE]):
-        """"给所有UE充电并消耗能量"""
+    def charge_all_ues(self, ues:[UE]):
+        """"给所有UE充电"""
         for ue in ues:
             self.__charge_ue(ue)
-        self.add_temp_energy(self.charge_power)
+
 
 
