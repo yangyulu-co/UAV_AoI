@@ -9,19 +9,10 @@ from environment2.DPUAV import DPUAV
 
 
 class UE:
-    def __init__(self, position, lambda_high=None, lambda_low=None, speed_limit=0):
+    def __init__(self, position, speed_limit=0):
         self.position = position
         """UE所在位置"""
-        self.aoi = 0.0
-        """aoi"""
 
-        self.aoi_tail = [0.0]
-        """历史aoi数据"""
-
-        self.lambda_high = lambda_high
-        """高电量时产生数据的时间间隔(时隙数)"""
-        self.lambda_low = lambda_low
-        """低电量时产生数据的时间间隔(时隙数)"""
         self.high_probability = 0.5
         """高电量时每个时间间隔产生数据的概率，待定"""
         self.low_probability = 0.3
@@ -115,7 +106,7 @@ class UE:
     # 生成数据相关函数
 
     def generate_task(self):
-        """每个时隙的开始执行，按照电量产生数据并消耗能量"""
+        """每个时隙的开始执行，按照电量产生数据并消耗能量，如果不生成数据，则waiting_time+1"""
         generate = None  # 是否产生新数据
         if self.energy_state == 1:
             # 高电量
@@ -123,21 +114,21 @@ class UE:
         else:
             # 低电量
             generate = random.random() < self.low_probability
-        if generate:  # 如果要生成新数据
-            if self.discharge(self.collect_energy):  # 如果电量足够并扣除电量
-                self.task = Task()
-                # 这里需要进一步处理
+        if generate and self.discharge(self.collect_energy):  # 如果要生成新数据和如果电量足够并扣除电量
+            self.task = Task()  # 生成新任务
+        else:
+            self.task.step()  # waiting_time + 1
 
-    # def update_aoi(self, new_aoi: float):
-    #     """更新AOI"""
-    #     self.aoi = new_aoi
-    #     self.aoi_tail.append(self.aoi)
+    def get_lambda(self) -> float:
+        """返回目前UE产生数据的概率"""
+        if self.energy_state == 1:
+            return self.high_probability
+        else:
+            return self.low_probability
 
     def offload_task(self):
         """UE卸载掉任务"""
         if self.task is None:
             print("the ue don't have a task")
             return False
-        ans_task = self.task
         self.task = None
-        return ans_task

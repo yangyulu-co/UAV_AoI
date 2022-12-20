@@ -32,6 +32,8 @@ class DPUAV(UAV):
 
         self.rate_BS = 4 * (10 ** (6))
         """与BS之间的通信速率(bit/s)"""
+        self.e = 1*(10**(-20))
+        """功耗系数"""
 
     def get_transmission_time_with_BS(self, ue) -> float:
         """传输单个ue任务到BS的时间(s)"""
@@ -46,8 +48,8 @@ class DPUAV(UAV):
         return task.compute / self.computing_capacity
 
     def get_compute_energy(self, task: Task) -> float:
-        """计算任务所需要的能耗(j),待定"""
-        return 1.0
+        """计算任务所需要的能耗(j)"""
+        return self.e*(self.computing_capacity**2)*task.compute
 
     def calcul_single_compute_and_offloading_aoi(self, ue, decisions: int):
         """计算不同卸载策略下的AOI，没有进行卸载则返回None"""

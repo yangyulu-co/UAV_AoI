@@ -15,6 +15,9 @@ class Position:
         self.tail = self.data.copy()
         """历史位置组成的数组，尺寸为n*3"""
 
+    def relative_position(self, other_position:'Position'):
+        return self.data - other_position.data
+
     def distance(self, other_position: 'Position') -> float:
         """两个位置之间的距离"""
         return np.linalg.norm(self.data - other_position.data)

@@ -75,6 +75,35 @@ class Area:
         # UE产生数据
         for ue in self.UEs:
             ue.generate_task()
+
+        # ETUAV充电
+        for etuav in self.ETUAVs:
+            etuav.charge_all_ues(self.UEs)
+
+        ## 生成DPUAV的观测环境
+        # 得到相对位置
+        dpuav_relative_positions = [None for _ in range(N_DPUAV)]
+        for i in range(N_DPUAV):
+            dpuav_relative_positions[i] = self.calcul_relative_positions('dpuav',i)
+        # 所有用户的AOI
+        dpuav_aoi = copy(self.aoi)
+        # 得到UE生成数据的速率
+        ue_probability = [ue.get_lambda() for ue in self.UEs]
+        # 得到UE是否有数据
+        ue_if_task = [0 if ue.task is None else 1 for ue in self.UEs]
+
+        ## 生成ETUAV的观测环境
+        # 得到相对位置
+        etuav_relative_positions = [None for _ in range(N_ETUAV)]
+        for i in range(N_ETUAV):
+            etuav_relative_positions[i] = self.calcul_relative_positions('etuav',i)
+        etuav_aoi = copy(self.aoi)
+        ue_energy = [ue.energy for ue in self.UEs]
+
+
+
+
+
         # 由强化学习控制，UAV开始运动
         etuav_move_energy = [0.0 for _ in range(N_ETUAV)]
         """ETUAV运动的能耗"""
@@ -97,16 +126,48 @@ class Area:
         offload_energy = [0.0 for _ in range(N_user)]
         offload_aoi = [self.aoi[i] + 1 for i in range(N_user)]
         for dpuav_index, ue_index, choice in offload_choice:
+            # 计算能量和aoi
             energy, aoi = self.calcul_single_dpuav_single_ue_energy_aoi(dpuav_index, ue_index, choice)
             offload_energy[ue_index] = energy
             offload_aoi[ue_index] = aoi
+            # 卸载任务
+            self.UEs[ue_index].offload_task()
         sum_dpuav_energy += sum(offload_energy)
         sum_aoi = sum(offload_aoi)
         target = eta_1 * sum_aoi + eta_2 * sum_dpuav_energy + eta_3 * sum_etuav_energy
+        """目标函数值"""
+        self.aoi = offload_aoi  # 更新AOI
 
-        # ETUAV充电
-        for etuav in self.ETUAVs:
-            etuav.charge_all_ues(self.UEs)
+    def calcul_relative_positions(self, type: str, index: int):
+        """计算DPUAV或者ETUAV与除自生外所有的UE,ETUAV,DPUAV的相对位置"""
+        relative_positions = []
+        if type == 'etuav':
+            center_position = self.ETUAVs[index].position
+            for ue in self.UEs:
+                rel_position = center_position.relative_position(ue.position)
+                relative_positions.append(rel_position)
+            for i, etuav in enumerate(self.ETUAVs):
+                if i != index:
+                    rel_position = center_position.relative_position(etuav.position)
+                    relative_positions.append(rel_position)
+            for dpuav in self.DPUAVs:
+                rel_position = center_position.relative_position(dpuav.position)
+                relative_positions.append(rel_position)
+        elif type == 'dpuav':
+            center_position = self.DPUAVs[index].position
+            for ue in self.UEs:
+                rel_position = center_position.relative_position(ue.position)
+                relative_positions.append(rel_position)
+            for etuav in self.ETUAVs:
+                rel_position = center_position.relative_position(etuav.position)
+                relative_positions.append(rel_position)
+            for i, dpuav in enumerate(self.DPUAVs):
+                if i != index:
+                    rel_position = center_position.relative_position(dpuav.position)
+                    relative_positions.append(rel_position)
+        else:
+            return False
+        return relative_positions
 
     def calcul_single_dpuav_single_ue_energy_aoi(self, dpuav_index: int, ue_index: int, offload_choice):
         """计算单个dpuav单个ue的卸载决策下的能量消耗和aoi"""
