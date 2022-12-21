@@ -117,7 +117,8 @@ class UE:
         if generate and self.discharge(self.collect_energy):  # 如果要生成新数据和如果电量足够并扣除电量
             self.task = Task()  # 生成新任务
         else:
-            self.task.step()  # waiting_time + 1
+            if self.task is not None:
+                self.task.step()  # waiting_time + 1
 
     def get_lambda(self) -> float:
         """返回目前UE产生数据的概率"""

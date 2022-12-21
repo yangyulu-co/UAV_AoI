@@ -243,11 +243,5 @@ class Area:
 
 
 if __name__ == "__main__":
-    print(generate_solution(1))
-    print('----')
-    print(generate_solution(2))
-    print('----')
-    print(generate_solution(3))
-    print('----')
-    print(generate_solution(4))
-    print('----')
+    area = Area()
+    area.step([0.1])
