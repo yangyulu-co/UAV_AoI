@@ -19,7 +19,7 @@ def get_link_dict(ues: [UE], dpuavs: [DPUAV]):
         near_dpuav = None
         near_distance = None
         for j, dpuav in enumerate(dpuavs):
-            if ue.if_link_DPUAV(dpuav):  # 如果在连接范围内
+            if ue.if_link_DPUAV(dpuav) and ue.task is not None:  # 如果在连接范围内且存在task需要卸载
                 distance = ue.distance_DPUAV(dpuav)
                 if near_dpuav is None or near_distance > distance:
                     near_dpuav = j
