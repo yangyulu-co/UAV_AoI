@@ -1,8 +1,7 @@
 
-
 class Task:
     """任务"""
-    def __init__(self, storage, compute):
+    def __init__(self, storage: float=5*(10**4), compute: float=5*(10**4)*200):
         self.storage = storage
         """任务的大小，bit数"""
         self.compute = compute
