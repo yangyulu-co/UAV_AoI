@@ -96,7 +96,6 @@ class Area:
         ue_if_task = [0 if ue.task is None else 1 for ue in self.UEs]
         self.public_state = np.concatenate((np.array(dpuav_aoi), np.array(ue_probability), np.array(ue_if_task)),
                                            axis=0)
-
         # state的私有部分
         dpuav_relative_positions = [None for _ in range(N_DPUAV)]
         for i in range(N_DPUAV):

@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-import Position
+from environment2.Position import Position
 import environment2.Constant
 
 

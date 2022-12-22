@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 import math
-import Position
+from environment2.Position import Position
 from environment2.Task import Task
 from environment2.UAV import calcul_SNR, calcul_channel_gain
 from environment2.DPUAV import DPUAV
