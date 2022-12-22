@@ -58,6 +58,9 @@ class Area:
         self.state_dim = 3 * N_user + (N_ETUAV + N_DPUAV) * (N_user + N_ETUAV + N_DPUAV - 1)  # 用户位置、AoI、lambda、队列状况，与其他所有UAV的位置
         self.public_state = np.empty((3 * N_user))  # 用户的AoI、lambda、队列状况是公有部分
         self.private_state = np.empty((N_user + N_ETUAV + N_DPUAV - 1))  # 与其他的位置关系是私有部分
+        self.env_state = np.concatenate((self.public_state, self.private_state), axis=0)  # 环境的观测值
+        self.reward = 0  # 奖励函数
+        self.done = False  # 当前episode是否结束
 
         self.limit = np.empty((2, 2), np.float32)
         self.limit[0, 0] = -x_range / 2
@@ -75,6 +78,42 @@ class Area:
 
         self.aoi = [0.0 for _ in range(N_user)]
         """UE的aoi"""
+
+    def reset(self):
+        # 生成ue,etuav,dpuav
+        self.UEs = self.generate_UEs(N_user)
+        """所有ue组成的列表"""
+        self.ETUAVs = self.generate_ETUAVs(N_ETUAV)
+        """所有ETUAV组成的列表"""
+        self.DPUAVs = self.generate_DPUAVs(N_DPUAV)
+        """所有DPUAV组成的列表"""
+        self.aoi = [0.0 for _ in range(N_user)]
+        """UE的aoi"""
+
+        # state的共有部分
+        dpuav_aoi = copy(self.aoi)
+        ue_probability = [ue.get_lambda() for ue in self.UEs]
+        ue_if_task = [0 if ue.task is None else 1 for ue in self.UEs]
+        self.public_state = np.concatenate((np.array(dpuav_aoi), np.array(ue_probability), np.array(ue_if_task)),
+                                           axis=0)
+
+        # state的私有部分
+        dpuav_relative_positions = [None for _ in range(N_DPUAV)]
+        for i in range(N_DPUAV):
+            dpuav_relative_positions[i] = self.calcul_relative_positions('dpuav', i)
+        etuav_relative_positions = [None for _ in range(N_ETUAV)]
+        for i in range(N_ETUAV):
+            etuav_relative_positions[i] = self.calcul_relative_positions('etuav', i)
+        temp = [x[0][0:2] for y in dpuav_relative_positions for x in y] + [x[0][0:2] for y in dpuav_relative_positions
+                                                                           for x in y]
+        self.private_state = np.stack(temp, axis=0)
+        self.private_state = self.private_state.reshape(1, -1)[0]
+
+        # 总的state
+        self.env_state = np.concatenate((self.public_state, self.private_state), axis=0)
+
+        return self.env_state
+
 
     def step(self, actions):  # action是每个agent动作向量(ndarray[0-2pi, 0-1])的列表，DP在前ET在后
         # UE产生数据
@@ -136,20 +175,23 @@ class Area:
         etuav_relative_positions = [None for _ in range(N_ETUAV)]
         for i in range(N_ETUAV):
             etuav_relative_positions[i] = self.calcul_relative_positions('etuav', i)
-        etuav_aoi = copy(self.aoi)
-        ue_energy = [ue.energy for ue in self.UEs]
+        ue_energy = [ue.energy for ue in self.UEs]  # 这个暂时不用
 
+        # 生成返回值
         # 公共的环境信息
         self.public_state = np.concatenate((np.array(dpuav_aoi), np.array(ue_probability), np.array(ue_if_task)), axis=0)
-        # 私有的环境信息
-        temp = [x for y in dpuav_relative_positions for x in y] + [x for y in dpuav_relative_positions for x in y]
+        # 私有的环境信息(只取水平距离)
+        temp = [x[0][0:2] for y in dpuav_relative_positions for x in y] + [x[0][0:2] for y in dpuav_relative_positions for x in y]
         self.private_state = np.stack(temp, axis=0)
         self.private_state = self.private_state.reshape(1, -1)[0]
-        print(self.private_state)
+        # print(self.private_state)
+        self.env_state = np.concatenate((self.public_state, self.private_state), axis=0)
 
+        self.reward = -target
 
+        self.done = False
 
-
+        return self.env_state, self.reward, self.done, ''
 
 
 
@@ -270,5 +312,5 @@ class Area:
 
 if __name__ == "__main__":
     area = Area()
-    area.step([np.array([0,0.1]),np.array([0.2,0.3]),np.array([0.4,0.5]),np.array([0.6,0.7])])
+    print(area.step([np.array([0,0.1]),np.array([0.2,0.3]),np.array([0.4,0.5]),np.array([0.6,0.7])]))
 
