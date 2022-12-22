@@ -80,17 +80,15 @@ class Area:
         for etuav in self.ETUAVs:
             etuav.charge_all_ues(self.UEs)
 
-
-
         # 由强化学习控制，UAV开始运动
         etuav_move_energy = [0.0 for _ in range(N_ETUAV)]
         """ETUAV运动的能耗"""
         for i, etuav in enumerate(self.ETUAVs):
-            etuav_move_energy[i] = etuav.move_by_radian_rate(actions[N_DPUAV+i][0],actions[N_DPUAV+i][1])
+            etuav_move_energy[i] = etuav.move_by_radian_rate(actions[N_DPUAV + i][0], actions[N_DPUAV + i][1])
         dpuav_move_energy = [0.0 for _ in range(N_DPUAV)]
         """DPUAV运动的能耗"""
         for i, dpuav in enumerate(self.DPUAVs):
-            dpuav_move_energy[i] = dpuav.move_by_radian_rate(actions[i][0],actions[i][1])
+            dpuav_move_energy[i] = dpuav.move_by_radian_rate(actions[i][0], actions[i][1])
 
         # 计算连接情况
         link_dict = get_link_dict(self.UEs, self.DPUAVs)
@@ -135,7 +133,6 @@ class Area:
             etuav_relative_positions[i] = self.calcul_relative_positions('etuav', i)
         etuav_aoi = copy(self.aoi)
         ue_energy = [ue.energy for ue in self.UEs]
-
 
 
 
@@ -251,3 +248,4 @@ class Area:
 if __name__ == "__main__":
     area = Area()
     area.step([np.array([0,0.1]),np.array([0.2,0.3]),np.array([0.4,0.5]),np.array([0.6,0.7])])
+
