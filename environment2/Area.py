@@ -4,7 +4,7 @@ from copy import copy
 
 import numpy as np
 
-from environment2.Constant import N_user, N_ETUAV, N_DPUAV, eta_1, eta_2, eta_3
+from environment2.Constant import N_user, N_ETUAV, N_DPUAV, eta_1, eta_2, eta_3,DPUAV_height,ETUAV_height
 from environment2.DPUAV import DPUAV, max_compute
 from environment2.ETUAV import ETUAV
 from environment2.Position import Position
@@ -221,28 +221,38 @@ class Area:
                 return False
         return True
 
-    def generate_single_position(self) -> Position:
-        """随机生成一个在区域里的点"""
+    def generate_single_UE_position(self) -> Position:
+        """随机生成一个UE在区域里的点"""
 
         x = random.uniform(self.limit[0, 0], self.limit[1, 0])
         y = random.uniform(self.limit[0, 1], self.limit[1, 1])
         return Position(x, y, 0)
+    def generate_single_ETUAV_position(self) -> Position:
+        """随机生成一个ETUAV在区域里的点"""
 
-    def generate_positions(self, num: int) -> [Position]:
-        """批量生成在区域里的点，返回一个列表"""
-        return [self.generate_single_position() for _ in range(num)]
+        x = random.uniform(self.limit[0, 0], self.limit[1, 0])
+        y = random.uniform(self.limit[0, 1], self.limit[1, 1])
+        return Position(x, y, ETUAV_height)
+    def generate_single_DPUAV_position(self) -> Position:
+        """随机生成一个DPUAV在区域里的点"""
+
+        x = random.uniform(self.limit[0, 0], self.limit[1, 0])
+        y = random.uniform(self.limit[0, 1], self.limit[1, 1])
+        return Position(x, y, DPUAV_height)
+
+
 
     def generate_UEs(self, num: int) -> [UE]:
         """生成指定数量的UE，返回一个list"""
-        return [UE(self.generate_single_position()) for _ in range(num)]
+        return [UE(self.generate_single_UE_position()) for _ in range(num)]
 
     def generate_ETUAVs(self, num: int) -> [ETUAV]:
         """生成指定数量ETUAV，返回一个list"""
-        return [ETUAV(self.generate_single_position()) for _ in range(num)]
+        return [ETUAV(self.generate_single_ETUAV_position()) for _ in range(num)]
 
     def generate_DPUAVs(self, num: int) -> [DPUAV]:
         """生成指定数量DPUAV，返回一个list"""
-        return [DPUAV(self.generate_single_position()) for _ in range(num)]
+        return [DPUAV(self.generate_single_DPUAV_position()) for _ in range(num)]
 
 
 if __name__ == "__main__":
