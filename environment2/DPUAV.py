@@ -17,7 +17,7 @@ class DPUAV(UAV):
     """数据处理UAV,data process"""
 
     def __init__(self, position: Position):
-        super().__init__(position, 100, 10)
+        super().__init__(position, 10)
         self.B_ue = 1 * (10 ** 6)
         """与ue之间的传输带宽(Hz)"""
 

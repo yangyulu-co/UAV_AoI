@@ -60,21 +60,15 @@ def energy_by_speed(speed: float) -> float:
 class UAV:
     """UAV的基类"""
 
-    def __init__(self, position: Position, height: float, speed_limit: float):
+    def __init__(self, position: Position,  speed_limit: float):
         self.position = position
         """UAV所在位置"""
 
-        self.height = height
-        """巡航高度,单位m"""
+
 
         self.speed_limit = speed_limit
         """飞行最大速度，单位m/s"""
 
-        # self.energy_consumption = 0.0
-        # """累计无人机能量的消耗(J)"""
-        #
-        # self.temp_energy = 0.0
-        # """当前时隙无人机能量的消耗(J)"""
 
     def get_tail(self):
         """得到历史轨迹"""
