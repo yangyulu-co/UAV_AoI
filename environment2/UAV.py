@@ -31,7 +31,7 @@ def calcul_channel_gain(position1: Position, position2: Position) -> float:
 
 
 def calcul_SNR(p: float) -> float:
-    sigma_2 = 1*(10*(-13)) # W
+    sigma_2 = 1*(10**(-13))  # W
     """计算信噪比"""
     return p / sigma_2
 

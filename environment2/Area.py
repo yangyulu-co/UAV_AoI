@@ -54,6 +54,11 @@ class Area:
 
     def __init__(self, x_range=500.0, y_range=500.0):
 
+        self.action_dim = 2  # 角度和rate
+        self.state_dim = 3 * N_user + (N_ETUAV + N_DPUAV) * (N_user + N_ETUAV + N_DPUAV - 1)  # 用户位置、AoI、lambda、队列状况，与其他所有UAV的位置
+        self.public_state = np.empty((3 * N_user))  # 用户的AoI、lambda、队列状况是公有部分
+        self.private_state = np.empty((N_user + N_ETUAV + N_DPUAV - 1))  # 与其他的位置关系是私有部分
+
         self.limit = np.empty((2, 2), np.float32)
         self.limit[0, 0] = -x_range / 2
         self.limit[1, 0] = x_range / 2
@@ -115,7 +120,7 @@ class Area:
         self.aoi = offload_aoi  # 更新AOI
 
         ## 生成DPUAV的观测环境
-        # 得到相对位置
+        # 得到相对位置(用户，DP，ET)
         dpuav_relative_positions = [None for _ in range(N_DPUAV)]
         for i in range(N_DPUAV):
             dpuav_relative_positions[i] = self.calcul_relative_positions('dpuav', i)
@@ -133,6 +138,14 @@ class Area:
             etuav_relative_positions[i] = self.calcul_relative_positions('etuav', i)
         etuav_aoi = copy(self.aoi)
         ue_energy = [ue.energy for ue in self.UEs]
+
+        # 公共的环境信息
+        self.public_state = np.concatenate((np.array(dpuav_aoi), np.array(ue_probability), np.array(ue_if_task)), axis=0)
+        # 私有的环境信息
+        temp = [x for y in dpuav_relative_positions for x in y] + [x for y in dpuav_relative_positions for x in y]
+        self.private_state = np.stack(temp, axis=0)
+        self.private_state = self.private_state.reshape(1, -1)[0]
+        print(self.private_state)
 
 
 
