@@ -3,11 +3,11 @@ import random
 import numpy as np
 import math
 
-from environment2.Library import get_random_task
-from environment2.Position import Position
-from environment2.Task import Task
-from environment2.UAV import calcul_SNR, calcul_channel_gain
-from environment2.DPUAV import DPUAV
+from environment_cent.Library import get_random_task
+from environment_cent.Position import Position
+from environment_cent.Task import Task
+from environment_cent.UAV import calcul_SNR, calcul_channel_gain
+from environment_cent.DPUAV import DPUAV
 
 
 class UE:

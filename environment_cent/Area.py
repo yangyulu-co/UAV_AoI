@@ -3,12 +3,13 @@ from collections import defaultdict
 from copy import copy
 
 import numpy as np
+import matplotlib.pyplot as plt
 
-from environment2.Constant import N_user, N_ETUAV, N_DPUAV, eta_1, eta_2, eta_3,DPUAV_height,ETUAV_height
-from environment2.DPUAV import DPUAV, max_compute
-from environment2.ETUAV import ETUAV
-from environment2.Position import Position
-from environment2.UE import UE
+from environment_cent.Constant import N_user, N_ETUAV, N_DPUAV, eta_1, eta_2, eta_3, DPUAV_height, ETUAV_height, time_slice
+from environment_cent.DPUAV import DPUAV, max_compute
+from environment_cent.ETUAV import ETUAV
+from environment_cent.Position import Position
+from environment_cent.UE import UE
 
 
 def get_link_dict(ues: [UE], dpuavs: [DPUAV]):
@@ -55,16 +56,9 @@ class Area:
     def __init__(self, x_range=500.0, y_range=500.0):
 
         self.agent_num = N_ETUAV + N_DPUAV
-        self.action_dim = 2  # 角度和rate
-        self.overall_state_dim = 3 * N_user + (self.agent_num) * (N_user + self.agent_num - 1)  # 用户位置、AoI、lambda、队列状况，与其他所有UAV的位置
-        self.public_state_dim = 3 * N_user
-        self.private_state_dim = N_user + self.agent_num - 1
-        self.public_state = np.empty((3 * N_user))  # 用户的AoI、lambda、队列状况是公有部分
-        self.private_state = np.empty((N_user + self.agent_num - 1))  # 与其他的位置关系是私有部分
-        self.overall_state = np.concatenate((self.public_state, self.private_state), axis=0)  # 环境的观测值
-        self.state = self.generate_obs(self.overall_state)
-        self.reward = 0  # 奖励函数
-        self.done = False  # 当前episode是否结束
+        self.action_dim = 2 * self.agent_num  # 角度和rate
+        self.state_dim = 3 * N_user + (self.agent_num) * 2 * N_user + 2 * self.agent_num
+        # 用户的AoI、电能、队列状况 + 每个智能体与用户的位置关系 + 智能体的位置
 
         self.limit = np.empty((2, 2), np.float32)
         self.limit[0, 0] = -x_range / 2
@@ -79,7 +73,6 @@ class Area:
         """所有ETUAV组成的列表"""
         self.DPUAVs = self.generate_DPUAVs(N_DPUAV)
         """所有DPUAV组成的列表"""
-
         self.aoi = [0.0 for _ in range(N_user)]
         """UE的aoi"""
 
@@ -94,32 +87,8 @@ class Area:
         self.aoi = [0.0 for _ in range(N_user)]
         """UE的aoi"""
 
-        # state的共有部分
-        dpuav_aoi = copy(self.aoi)
-        ue_probability = [ue.get_lambda() for ue in self.UEs]
-        ue_if_task = [0 if ue.task is None else 1 for ue in self.UEs]
-        self.public_state = np.concatenate((np.array(dpuav_aoi), np.array(ue_probability), np.array(ue_if_task)),
-                                           axis=0)
-
-        # state的私有部分
-        dpuav_relative_positions = [None for _ in range(N_DPUAV)]
-        for i in range(N_DPUAV):
-            dpuav_relative_positions[i] = self.calcul_relative_positions('dpuav', i)
-        etuav_relative_positions = [None for _ in range(N_ETUAV)]
-        for i in range(N_ETUAV):
-            etuav_relative_positions[i] = self.calcul_relative_positions('etuav', i)
-        temp = [x[0][0:2] for y in dpuav_relative_positions for x in y] + [x[0][0:2] for y in dpuav_relative_positions
-                                                                           for x in y]
-        self.private_state = np.stack(temp, axis=0)
-        self.private_state = self.private_state.reshape(1, -1)[0]
-
-        # 总的state
-        self.overall_state = np.concatenate((self.public_state, self.private_state), axis=0)
-        # 返回的state
-        self.state = self.generate_obs(self.overall_state)
-
-        return self.state
-
+        state = self.calcul_state()
+        return state
 
     def step(self, actions):  # action是每个agent动作向量(ndarray[0-2pi, 0-1])的列表，DP在前ET在后
         # UE产生数据
@@ -134,11 +103,11 @@ class Area:
         etuav_move_energy = [0.0 for _ in range(N_ETUAV)]
         """ETUAV运动的能耗"""
         for i, etuav in enumerate(self.ETUAVs):
-            etuav_move_energy[i] = etuav.move_by_radian_rate(actions[N_DPUAV + i][0], actions[N_DPUAV + i][1])
+            etuav_move_energy[i] = etuav.move_by_radian_rate_2(actions[2 * N_DPUAV + i], actions[2 * N_DPUAV + i + 1])
         dpuav_move_energy = [0.0 for _ in range(N_DPUAV)]
         """DPUAV运动的能耗"""
         for i, dpuav in enumerate(self.DPUAVs):
-            dpuav_move_energy[i] = dpuav.move_by_radian_rate(actions[i][0], actions[i][1])
+            dpuav_move_energy[i] = dpuav.move_by_radian_rate_2(actions[i], actions[i+1])
 
         # 计算连接情况
         link_dict = get_link_dict(self.UEs, self.DPUAVs)
@@ -150,7 +119,7 @@ class Area:
         sum_etuav_energy = sum(etuav_move_energy)
         """ETUAV总的能耗"""
         offload_energy = [0.0 for _ in range(N_user)]
-        offload_aoi = [self.aoi[i] + 1 for i in range(N_user)]
+        offload_aoi = [self.aoi[i] + time_slice for i in range(N_user)]
         for dpuav_index, ue_index, choice in offload_choice:
             # 计算能量和aoi
             energy, aoi = self.calcul_single_dpuav_single_ue_energy_aoi(dpuav_index, ue_index, choice)
@@ -159,51 +128,53 @@ class Area:
             # 卸载任务
             self.UEs[ue_index].offload_task()
         sum_dpuav_energy += sum(offload_energy)
-        sum_aoi = sum(offload_aoi)
-        target = eta_1 * sum_aoi + eta_2 * sum_dpuav_energy + eta_3 * sum_etuav_energy
-        """目标函数值"""
+        # sum_aoi = sum(offload_aoi)
+        # target = eta_1 * sum_aoi + eta_2 * sum_dpuav_energy + eta_3 * sum_etuav_energy
+        # """目标函数值"""
         self.aoi = offload_aoi  # 更新AOI
 
-        ## 生成DPUAV的观测环境
-        # 得到相对位置(用户，DP，ET)
-        dpuav_relative_positions = [None for _ in range(N_DPUAV)]
-        for i in range(N_DPUAV):
-            dpuav_relative_positions[i] = self.calcul_relative_positions('dpuav', i)
+        # 返回状态
+        state = self.calcul_state()
+        # reward
+        ue_energy = [ue.energy for ue in self.UEs]
+        penalty = -sum(i>5 for i in ue_energy)
+        reward = sum(ue_energy) + penalty  # reward是用户平均电量+低电量惩罚
+        done = False
+
+        # # 画无人机的轨迹
+        # plt.figure()
+        # plt.plot([i.position.data[0][0] for i in self.UEs], [j.position.data[0][1] for j in self.UEs], '*')
+        #
+        # for i in range(N_DPUAV):
+        #     DPUAV_tail = self.DPUAVs[i].get_tail()
+        #     plt.plot(DPUAV_tail[0][:], DPUAV_tail[1][:], '-o')
+        # plt.savefig('test/render.png', format='png')
+        # plt.close()
+
+        return state, reward, done, ''
+
+    def calcul_state(self):
+        """计算所有UAV的状态信息，以[narray]格式返回"""
+        # 公共的环境信息
         # 所有用户的AOI
         dpuav_aoi = copy(self.aoi)
+        ue_energy = [ue.energy for ue in self.UEs]
         # 得到UE生成数据的速率
-        ue_probability = [ue.get_lambda() for ue in self.UEs]
+        ue_probability = [ue.get_lambda() for ue in self.UEs]  # 这个暂时不用
         # 得到UE是否有数据
         ue_if_task = [0 if ue.task is None else 1 for ue in self.UEs]
+        public_state = np.array(dpuav_aoi + ue_energy + ue_if_task)
 
-        ## 生成ETUAV的观测环境
-        # 得到相对位置
-        etuav_relative_positions = [None for _ in range(N_ETUAV)]
+        state = np.array(public_state)
+        for i in range(N_DPUAV):
+            state = np.append(state, self.calcul_relative_horizontal_positions("dpuav", i))
         for i in range(N_ETUAV):
-            etuav_relative_positions[i] = self.calcul_relative_positions('etuav', i)
-        ue_energy = [ue.energy for ue in self.UEs]  # 这个暂时不用
-
-        # 生成返回值
-        # 公共的环境信息
-        self.public_state = np.concatenate((np.array(dpuav_aoi), np.array(ue_probability), np.array(ue_if_task)), axis=0)
-        # 私有的环境信息(只取水平距离)
-        temp = [x[0][0:2] for y in dpuav_relative_positions for x in y] + [x[0][0:2] for y in dpuav_relative_positions for x in y]
-        self.private_state = np.stack(temp, axis=0)
-        self.private_state = self.private_state.reshape(1, -1)[0]
-        # print(self.private_state)
-        self.overall_state = np.concatenate((self.public_state, self.private_state), axis=0)
-        # 返回的state
-        self.state = self.generate_obs(self.overall_state)
-
-        self.reward = [-target] * (N_DPUAV + N_ETUAV)
-
-        self.done = False
-
-        return self.state, self.reward, self.done, ''
+            state = np.append(state, self.calcul_relative_horizontal_positions("etuav", i))
+        return state
 
 
     def calcul_relative_positions(self, type: str, index: int):
-        """计算DPUAV或者ETUAV与除自生外所有的UE,ETUAV,DPUAV的相对位置"""
+        """计算DPUAV或者ETUAV与除自生外所有的UE,ETUAV,DPUAV的相对位置,弃用"""
         relative_positions = []
         if type == 'etuav':
             center_position = self.ETUAVs[index].position
@@ -229,6 +200,37 @@ class Area:
                 if i != index:
                     rel_position = center_position.relative_position(dpuav.position)
                     relative_positions.append(rel_position)
+        else:
+            return False
+        return relative_positions
+
+    def calcul_relative_horizontal_positions(self, type: str, index: int):
+        """计算DPUAV或者ETUAV与除自生外所有的UE,ETUAV,DPUAV的相对水平位置"""
+        relative_positions = []
+        if type == 'etuav':
+            center_position = self.ETUAVs[index].position
+            for ue in self.UEs:
+                rel_position = center_position.relative_horizontal_position(ue.position)
+                relative_positions += rel_position
+            for i, etuav in enumerate(self.ETUAVs):
+                if i != index:
+                    rel_position = center_position.relative_horizontal_position(etuav.position)
+                    relative_positions += rel_position
+            for dpuav in self.DPUAVs:
+                rel_position = center_position.relative_horizontal_position(dpuav.position)
+                relative_positions += rel_position
+        elif type == 'dpuav':
+            center_position = self.DPUAVs[index].position
+            for ue in self.UEs:
+                rel_position = center_position.relative_horizontal_position(ue.position)
+                relative_positions += rel_position
+            for etuav in self.ETUAVs:
+                rel_position = center_position.relative_horizontal_position(etuav.position)
+                relative_positions += rel_position
+            for i, dpuav in enumerate(self.DPUAVs):
+                if i != index:
+                    rel_position = center_position.relative_horizontal_position(dpuav.position)
+                    relative_positions += rel_position
         else:
             return False
         return relative_positions
@@ -288,20 +290,20 @@ class Area:
         x = random.uniform(self.limit[0, 0], self.limit[1, 0])
         y = random.uniform(self.limit[0, 1], self.limit[1, 1])
         return Position(x, y, 0)
+
     def generate_single_ETUAV_position(self) -> Position:
         """随机生成一个ETUAV在区域里的点"""
 
         x = random.uniform(self.limit[0, 0], self.limit[1, 0])
         y = random.uniform(self.limit[0, 1], self.limit[1, 1])
         return Position(x, y, ETUAV_height)
+
     def generate_single_DPUAV_position(self) -> Position:
         """随机生成一个DPUAV在区域里的点"""
 
         x = random.uniform(self.limit[0, 0], self.limit[1, 0])
         y = random.uniform(self.limit[0, 1], self.limit[1, 1])
         return Position(x, y, DPUAV_height)
-
-
 
     def generate_UEs(self, num: int) -> [UE]:
         """生成指定数量的UE，返回一个list"""
@@ -315,20 +317,8 @@ class Area:
         """生成指定数量DPUAV，返回一个list"""
         return [DPUAV(self.generate_single_DPUAV_position()) for _ in range(num)]
 
-    def generate_obs(self, overall_state):
-        # 输入总观测值，返回每个用户观测值的list
-        s = []
-        for ax in range(self.agent_num):
-            single_state = np.concatenate((overall_state[0:self.public_state_dim],
-                                           overall_state[self.public_state_dim + ax * self.private_state_dim:
-                                                         self.public_state_dim + (
-                                                                     ax + 1) * self.private_state_dim]),
-                                          axis=0)
-            s.append(single_state)
-        return s
-
 
 if __name__ == "__main__":
     area = Area()
-    print(area.step([np.array([0,0.1]),np.array([0.2,0.3]),np.array([0.4,0.5]),np.array([0.6,0.7])]))
-
+    # area.step([np.array([0, 0.1]), np.array([0.2, 0.3]), np.array([0.4, 0.5]), np.array([0.6, 0.7])])
+    print(area.step([np.array([0, 0.1]), np.array([0.2, 0.3]), np.array([0.4, 0.5]), np.array([0.6, 0.7])]))

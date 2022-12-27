@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b8afc9d1-c745-4589-8d21-a53c8a61c606" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/BS.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/Constant.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/DPUAV.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/ETUAV.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/EnvCore.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/Library.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/Model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/Position.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/Task.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/UAV.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/UE.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environment_cent/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/A2C.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/Memory.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/Pretrained_model/A2C_model.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/Pretrained_model/A2C_reward_data.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/Pretrained_model/A2C_saved_time_data.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/Pretrained_model/A2C_threhold_reward.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/Pretrained_model/A2C_threhold_saved_time.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/plot_num_a2c.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/run_a2c.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/A2C/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DDQN/DDQN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DDQN/Memory.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DDQN/plot_num_ddqn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DDQN/run_ddqn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DDQN/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/DQN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/Memory.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/plot_num_dqn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/run_dqn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/Memory.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/PPO.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/Pretrained_model/PPO.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/Pretrained_model/PPO_model.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/Pretrained_model/PPO_reward_data.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/Pretrained_model/PPO_threhold_reward.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/plot_num_ppo.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/run_ppo.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PPO/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment/PlayGround.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment2/Area.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment_cent/Area.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment2/Constant.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment2/Constant.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment2/DPUAV.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment2/DPUAV.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment2/Position.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment2/Position.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment2/UE.py" beforeDir="false" afterPath="$PROJECT_DIR$/environment2/UE.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="2JTnR8GhsaCsmPy94h2mIejyfWn" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/environment2" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="G:\Pycharm\AoI_UAV\environment2" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.main">
+    <configuration name="Area" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="AoI_UAV" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/environment_cent" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/environment_cent/Area.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="AoI_UAV" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.Area" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b8afc9d1-c745-4589-8d21-a53c8a61c606" name="Changes" comment="" />
+      <created>1672110929336</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1672110929336</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/environment_cent/Area.py</url>
+          <line>172</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

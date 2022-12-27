@@ -3,10 +3,10 @@ import math
 import numpy as np
 
 
-from environment2.Constant import bs_computing_capacity
-from environment2.Position import Position
-from environment2.Task import Task
-from environment2.UAV import UAV, calcul_channel_gain, calcul_SNR
+from environment_cent.Constant import bs_computing_capacity
+from environment_cent.Position import Position
+from environment_cent.Task import Task
+from environment_cent.UAV import UAV, calcul_channel_gain, calcul_SNR
 # from environment2.UE import UE
 
 max_compute = 4
